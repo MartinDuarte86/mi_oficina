@@ -5,8 +5,8 @@ import { api, base64ToBlob, downloadBlob, fileToBase64, formatDate, formatSize, 
 import { csvToWorkbook, docxToHtml, emptyWorkbook, xlsxToWorkbook } from '@/lib/convert'
 import { emptyDeck } from '@/components/slides-model'
 
-const LABEL: Record<Kind, string> = { doc: 'Documento', sheet: 'Hoja de cálculo', slides: 'Presentación', file: 'Archivo' }
-const LETTER: Record<Kind, string> = { doc: 'W', sheet: 'X', slides: 'P', file: '⇩' }
+const LABEL: Record<Kind, string> = { doc: 'Documento', sheet: 'Hoja de cálculo', slides: 'Presentación', diagram: 'Diagrama', file: 'Archivo' }
+const LETTER: Record<Kind, string> = { doc: 'W', sheet: 'X', slides: 'P', diagram: 'V', file: '⇩' }
 
 export default function Home() {
   const router = useRouter()
@@ -27,7 +27,11 @@ export default function Home() {
     setBusy('Creando…')
     try {
       const content =
-        kind === 'doc' ? '' : kind === 'sheet' ? JSON.stringify(emptyWorkbook()) : JSON.stringify(emptyDeck())
+        kind === 'doc' || kind === 'diagram'
+          ? ''
+          : kind === 'sheet'
+            ? JSON.stringify(emptyWorkbook())
+            : JSON.stringify(emptyDeck())
       const it = await api.create({ kind, title: `${LABEL[kind]} sin título`, content })
       router.push(`/d/${it.id}`)
     } catch (e) {
@@ -51,6 +55,12 @@ export default function Home() {
           await api.create({ kind: 'sheet', title: base, content: JSON.stringify(wb) })
         } else if (ext === 'csv') {
           await api.create({ kind: 'sheet', title: base, content: JSON.stringify(csvToWorkbook(await file.text(), base)) })
+        } else if (ext === 'vsdx' || ext === 'vsd') {
+          // Se convierte a draw.io la primera vez que se abre
+          if (file.size * 1.37 > MAX_BYTES) throw new Error(`${file.name} supera el límite de ~2.9 MB por archivo`)
+          await api.create({ kind: 'diagram', title: base, content: 'data:application/vnd.visio;base64,' + (await fileToBase64(file)) })
+        } else if (ext === 'drawio' || ext === 'dio') {
+          await api.create({ kind: 'diagram', title: base, content: await file.text() })
         } else if (ext === 'txt' || ext === 'md') {
           const esc = (await file.text()).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]!)
           const html = esc.split(/\n{2,}/).map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')
@@ -110,7 +120,7 @@ export default function Home() {
       >
         <h2 style={{ margin: '4px 0 0' }}>Crear nuevo</h2>
         <div className="new-grid">
-          {(['doc', 'sheet', 'slides'] as const).map((k) => (
+          {(['doc', 'sheet', 'slides', 'diagram'] as const).map((k) => (
             <button key={k} className="new-card" onClick={() => createNew(k)} disabled={!!busy}>
               <span className={`badge k-${k}`}>{LETTER[k]}</span>
               <span>{LABEL[k]}</span>
@@ -120,7 +130,7 @@ export default function Home() {
             <span className="badge k-file">↑</span>
             <span>
               Subir archivo
-              <div className="muted">.docx .xlsx .csv se abren para editar</div>
+              <div className="muted">.docx .xlsx .csv .vsdx .drawio se abren para editar</div>
             </span>
           </button>
           <input
@@ -143,6 +153,7 @@ export default function Home() {
             <option value="doc">Documentos</option>
             <option value="sheet">Hojas de cálculo</option>
             <option value="slides">Presentaciones</option>
+            <option value="diagram">Diagramas</option>
             <option value="file">Archivos</option>
           </select>
         </div>
