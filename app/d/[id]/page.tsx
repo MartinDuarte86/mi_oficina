@@ -6,6 +6,7 @@ import { api, base64ToBlob, downloadBlob, type Item } from '@/lib/client'
 const DocEditor = dynamic(() => import('@/components/DocEditor'), { ssr: false })
 const SheetEditor = dynamic(() => import('@/components/SheetEditor'), { ssr: false })
 const SlidesEditor = dynamic(() => import('@/components/SlidesEditor'), { ssr: false })
+const DiagramEditor = dynamic(() => import('@/components/DiagramEditor'), { ssr: false })
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -27,6 +28,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   if (item.kind === 'doc') return <DocEditor item={item} />
   if (item.kind === 'sheet') return <SheetEditor item={item} />
   if (item.kind === 'slides') return <SlidesEditor item={item} />
+  if (item.kind === 'diagram') return <DiagramEditor item={item} />
   return (
     <main className="wrap">
       <h2>{item.title}</h2>

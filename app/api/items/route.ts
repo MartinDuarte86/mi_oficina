@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { db, type Kind } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
-const KINDS: Kind[] = ['doc', 'sheet', 'slides', 'file']
+const KINDS: Kind[] = ['doc', 'sheet', 'slides', 'diagram', 'file']
 
 export async function GET() {
   return NextResponse.json(await db().list())
