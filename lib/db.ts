@@ -4,7 +4,7 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import crypto from 'crypto'
 
-export type Kind = 'doc' | 'sheet' | 'slides' | 'file'
+export type Kind = 'doc' | 'sheet' | 'slides' | 'diagram' | 'file'
 
 export interface ItemMeta {
   id: string

@@ -9,6 +9,7 @@
   --doc: #2f6bff;
   --sheet: #17a05d;
   --slides: #e8710a;
+  --diagram: #3955a3;
   --file: #7a5af8;
   --danger: #d93a3a;
   --radius: 10px;
@@ -81,6 +82,7 @@ button, input, select {
 }
 .k-doc { background: var(--doc); } .k-sheet { background: var(--sheet); }
 .k-slides { background: var(--slides); } .k-file { background: var(--file); }
+.k-diagram { background: var(--diagram); }
 
 /* Dashboard */
 .wrap { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
@@ -141,6 +143,7 @@ button, input, select {
 
 /* Hoja de cálculo */
 .sheet-host { position: fixed; inset: 53px 0 0 0; }
+.diagram-host { position: fixed; inset: 53px 0 0 0; width: 100%; height: calc(100% - 53px); border: 0; }
 
 /* Presentaciones */
 .slides-layout { display: grid; grid-template-columns: 200px 1fr; height: calc(100vh - 53px); }
